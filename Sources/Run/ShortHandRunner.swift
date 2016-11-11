@@ -12,40 +12,11 @@
  Executes a command and captures its output
  
  - parameter command: the command to execute
- - parameter args:    the parameters to pass to the command
  
  - returns: RunResults describing the command results
  */
-public func run(_ command: String, args: String...) -> RunResults {
-    return 🏃.run(command, args: args as [String])
-}
-
-
-/**
- Executes a command and captures its output
- 
- - parameter command:   the command to execute
- - parameter argString: the arguments passed as a single string
- 
- - returns: RunResults describing the command results
- */
-public func run(_ command: String, argsString: String) -> RunResults {
-  // TODO: FIX
-//  let args = argsString.components(separatedBy: " ").filter { !$0.isEmpty }
-  return 🏃.run(command, args: [])
-}
-
-
-/**
- Executes a command and captures its output
- 
- - parameter command: the command to execute
- - parameter args:    the parameters to pass to the command
- 
- - returns: RunResults describing the command results
- */
-public func run(_ command: String, args: [String]) -> RunResults {
-    return 🏃.run(command, args: args)
+public func run(_ command: String) -> RunResults {
+    return 🏃.run(command)
 }
 
 
@@ -71,8 +42,8 @@ public func run(_ command: String, settingsBlock: ((RunSettings) -> Void)) -> Ru
  
  - returns: RunResults describing the command results
  */
-public func run(_ command: String, args: [String], settings: ((RunSettings) -> Void)) -> RunResults {
-    return 🏃.run(command, args: args, settings: settings)
+public func run(_ command: String, settings: ((RunSettings) -> Void)) -> RunResults {
+    return 🏃.run(command, settings: settings)
 }
 
 

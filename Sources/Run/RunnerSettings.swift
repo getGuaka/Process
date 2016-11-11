@@ -15,9 +15,6 @@ public class RunSettings {
     
     /// Which parts of the command to be echoed during execution
     public var echo = EchoSettings.None
-    
-    /// Run the command in interactive mode; output wont be captured
-    public var interactive = false
 }
 
 

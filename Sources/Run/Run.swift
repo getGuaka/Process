@@ -33,12 +33,12 @@ struct Process {
   let pid: pid_t
 }
 
-func spawn(_ arguments: [String], environment: [String: String] = [:], fileActions fileActionsArray: [FileAction] = []) throws -> Process {
+func spawn(_ arguments: [String], environment: [String] = [], fileActions fileActionsArray: [FileAction] = []) throws -> Process {
   let argv = arguments.map { $0.withCString(strdup) }
   defer { for arg in argv { free(arg) } }
   
   var environment = environment
-  let env = environment.map { "\($0.0)=\($0.1)".withCString(strdup) }
+  let env = environment.map { $0.withCString(strdup) }
   defer { env.forEach { free($0) } }
   
   var fileActions = UnsafeMutablePointer<posix_spawn_file_actions_t?>.allocate(capacity: fileActionsArray.count)

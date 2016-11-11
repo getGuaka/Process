@@ -3,9 +3,7 @@ import XCTest
 
 class RunTests: XCTestCase {
   func testExample() {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
-    let x = 🏃.run("echo", args: ["1", "2", "3"])
+    let x = 🏃.run("rbenv")
     print(x)
   }
   

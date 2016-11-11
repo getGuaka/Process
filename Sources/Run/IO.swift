@@ -6,7 +6,11 @@
 //
 //
 
-import Darwin.C
+#if os(Linux)
+  @_exported import Glibc
+#else
+  @_exported import Darwin.C
+#endif
 
 
 /// Structurs that represents an IO device
@@ -34,15 +38,15 @@ extension IO {
     return try _readToString(fd: fd)
   }
   
-  func read(length: Int) throws -> [Int8]? {
+  func read(length: Int) throws -> [UInt8]? {
     return try _read(fd: fd, length: length)
   }
   
-  func read() throws -> [Int8] {
+  func read() throws -> [UInt8] {
     return try _read(fd: fd)
   }
   
-  static func read(fds: Set<FileDescriptor>) throws -> [FileDescriptor : [Int8]] {
+  static func read(fds: Set<FileDescriptor>) throws -> [FileDescriptor : [UInt8]] {
     return try _read(fds: fds)
   }
 }
@@ -54,7 +58,7 @@ extension IO: TextOutputStream {
     _write(fd: fd, string: string)
   }
   
-  func write(data: [Int8]) {
+  func write(data: [UInt8]) {
     _write(fd: fd, data: data)
   }
 }
@@ -84,8 +88,8 @@ func retryInterrupt<T>( block: @autoclosure () throws -> T) throws -> T {
   }
 }
 
-private func _read(fd: FileDescriptor, length: Int) throws -> [Int8]? {
-  var buf = [Int8](repeating: 0, count: length)
+private func _read(fd: FileDescriptor, length: Int) throws -> [UInt8]? {
+  var buf = [UInt8](repeating: 0, count: length)
   return try retryInterrupt {
     let n = Darwin.read(fd, &buf, length)
     switch n {
@@ -99,8 +103,8 @@ private func _read(fd: FileDescriptor, length: Int) throws -> [Int8]? {
   }
 }
 
-private func _read(fd: FileDescriptor) throws -> [Int8] {
-  var buf = [Int8]()
+private func _read(fd: FileDescriptor) throws -> [UInt8] {
+  var buf = [UInt8]()
   while let chunk = try _read(fd: fd, length: 4096) {
     buf.append(contentsOf: chunk)
   }
@@ -116,12 +120,12 @@ private func _readToString(fd: FileDescriptor) throws -> String {
   return str
 }
 
-private func _read(fds: Set<FileDescriptor>) throws -> [FileDescriptor : [Int8]] {
+private func _read(fds: Set<FileDescriptor>) throws -> [FileDescriptor : [UInt8]] {
   var openFds: Set<FileDescriptor> = fds
-  var bufs: [FileDescriptor : [Int8]] = [:]
+  var bufs: [FileDescriptor : [UInt8]] = [:]
   
   for fd in fds {
-    bufs[fd] = [Int8]()
+    bufs[fd] = [UInt8]()
   }
   
   while openFds.count > 0 {
@@ -138,14 +142,14 @@ private func _read(fds: Set<FileDescriptor>) throws -> [FileDescriptor : [Int8]]
     }
   }
   
-  var result: [FileDescriptor : [Int8]] = [:]
+  var result: [FileDescriptor : [UInt8]] = [:]
   for fd in fds {
     result[fd] = bufs[fd]
   }
   return result
 }
 
-private func _write(fd: FileDescriptor, data: [Int8]) {
+private func _write(fd: FileDescriptor, data: [UInt8]) {
   write(fd, data, data.count)
 }
 

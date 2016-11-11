@@ -5,7 +5,7 @@
 //  Created by Omar Abdelhafith on 05/11/2015.
 //  Copyright © 2015 Omar Abdelhafith. All rights reserved.
 //
-
+import Environ
 
 typealias ExecutorReturnValue = (status: Int, standardOutput: TaskIO, standardError: TaskIO)
 
@@ -13,20 +13,19 @@ class CommandExecutor {
   
   static var currentTaskExecutor: TaskExecutor = ActualTaskExecutor()
   
-  class func execute(_ commandParts: [String]) -> ExecutorReturnValue {
-    return currentTaskExecutor.execute(commandParts)!
+  class func execute(_ command: String) -> ExecutorReturnValue {
+    return currentTaskExecutor.execute(command)!
   }
 }
 
 
 protocol TaskExecutor {
-  func execute(_ commandParts: [String]) -> ExecutorReturnValue?
+  func execute(_ command: String) -> ExecutorReturnValue?
 }
 
 class DryTaskExecutor: TaskExecutor {
   
-  func execute(_ commandParts: [String]) -> ExecutorReturnValue? {
-    let command = commandParts.joined(separator: " ")
+  func execute(_ command: String) -> ExecutorReturnValue? {
     PromptSettings.print("Executed command '\(command)'")
     
     return (0,
@@ -37,12 +36,12 @@ class DryTaskExecutor: TaskExecutor {
 
 class ActualTaskExecutor: TaskExecutor {
   
-  func execute(_ commandParts: [String]) -> ExecutorReturnValue?  {
+  func execute(_ command: String) -> ExecutorReturnValue?  {
     let (stdOut, outW) = try! pipe()
     let (stdErr, errW) = try! pipe()
     
-    
-    let process = try! spawn(["/bin/sh", "-c", commandParts.joined(separator: " ")], environment: ["FOO": "1"], fileActions: [
+    let process = try! spawn(["/bin/sh", "-c", command],
+                             environment: environment, fileActions: [
       .Dup2(outW.fd, 1),
       .Dup2(errW.fd, 2),
       .Close(stdOut.fd),
@@ -61,31 +60,6 @@ class ActualTaskExecutor: TaskExecutor {
   }
 }
 
-class InteractiveTaskExecutor: TaskExecutor {
-  
-  func execute(_ commandParts: [String]) -> ExecutorReturnValue?  {
-    
-    let argv: [UnsafeMutablePointer<CChar>?] = commandParts.map{ $0.withCString(strdup) }
-    defer { for case let arg? in argv { free(arg) } }
-    
-    var childFDActions: posix_spawn_file_actions_t? = nil
-    var outputPipe: [Int32] = [-1, -1]
-    
-    posix_spawn_file_actions_init(&childFDActions)
-    posix_spawn_file_actions_adddup2(&childFDActions, outputPipe[1], 1)
-    posix_spawn_file_actions_adddup2(&childFDActions, outputPipe[1], 2)
-    posix_spawn_file_actions_addclose(&childFDActions, outputPipe[0])
-    posix_spawn_file_actions_addclose(&childFDActions, outputPipe[1])
-    
-    
-    var pid: pid_t = 0
-    let result = posix_spawn(&pid, argv[0], &childFDActions, nil, argv + [nil], nil)
-    
-    let emptyPipe = DryIO(stringToReturn: "")
-    return (Int(result), emptyPipe, emptyPipe)
-  }
-}
-
 class DummyTaskExecutor: TaskExecutor {
   
   var commandsExecuted: [String] = []
@@ -100,12 +74,30 @@ class DummyTaskExecutor: TaskExecutor {
     errorToReturn = error
   }
   
-  func execute(_ commandParts: [String]) -> ExecutorReturnValue? {
-    let command = commandParts.joined(separator: " ")
+  func execute(_ command: String) -> ExecutorReturnValue? {
     commandsExecuted.append(command)
     
     return (statusCodeToReturn,
             DryIO(stringToReturn: outputToReturn),
             DryIO(stringToReturn: errorToReturn))
+  }
+}
+
+var environment: [String] {
+  
+  var items: [String] = []
+  guard var environCopy = environ else { return items }
+  
+  while true {
+    let x = environCopy[0]
+    
+    guard
+      let environment = x
+      else { return items }
+    
+    let environmentStr = String(cString: environment)
+    items.append(environmentStr)
+    
+    environCopy = environCopy.advanced(by: 1)
   }
 }
