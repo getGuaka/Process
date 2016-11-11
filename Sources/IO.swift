@@ -9,10 +9,14 @@
 import Darwin.C
 
 
+/// Structurs that represents an IO device
+/// It wraps a file descriptor and provide functions to deal with it
 struct IO: TaskIO {
   let fd: FileDescriptor
 }
 
+
+// MARK: - Opening
 extension IO {
   static func open(path: String) throws -> IO {
     let fd = Darwin.open(path, O_RDONLY, S_IREAD)
@@ -23,6 +27,8 @@ extension IO {
   }
 }
 
+
+// MARK: - Reading
 extension IO {
   func read() throws -> String {
     return try _readToString(fd: fd)
@@ -41,6 +47,8 @@ extension IO {
   }
 }
 
+
+// MARK: - Writing
 extension IO: TextOutputStream {
   func write(_ string: String) {
     _write(fd: fd, string: string)
@@ -50,6 +58,15 @@ extension IO: TextOutputStream {
     _write(fd: fd, data: data)
   }
 }
+
+
+// MARK: - Closing
+extension IO {
+  func close() throws {
+    try _close(fd: fd)
+  }
+}
+
 
 /// MARK: Private
 
@@ -134,15 +151,6 @@ private func _write(fd: FileDescriptor, data: [Int8]) {
 
 private func _write(fd: FileDescriptor, string: String) {
   write(fd, string, Int(strlen(string)))
-}
-
-
-// MARK: - Closing
-
-extension IO {
-  func close() throws {
-    try _close(fd: fd)
-  }
 }
 
 private func _close(fd: FileDescriptor) throws {

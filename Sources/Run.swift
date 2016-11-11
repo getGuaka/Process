@@ -5,9 +5,9 @@
 #endif
 
 
-public typealias FileDescriptor = Int32
+typealias FileDescriptor = Int32
 
-public func _pipe() throws -> (FileDescriptor, FileDescriptor) {
+func _pipe() throws -> (FileDescriptor, FileDescriptor) {
   var fds: [Int32] = [0, 0]
   let rv = pipe(&fds)
   if rv == 0 {
@@ -23,17 +23,17 @@ func pipe() throws -> (IO, IO) {
   return (IO(fd: fd1), IO(fd: fd2))
 }
 
-public enum FileAction {
+enum FileAction {
   case Close(FileDescriptor)
   case Open(FileDescriptor, String, Int32, mode_t)
   case Dup2(FileDescriptor, FileDescriptor)
 }
 
-public struct Process {
-  public let pid: pid_t
+struct Process {
+  let pid: pid_t
 }
 
-public func spawn(_ arguments: [String], environment: [String: String] = [:], fileActions fileActionsArray: [FileAction] = []) throws -> Process {
+func spawn(_ arguments: [String], environment: [String: String] = [:], fileActions fileActionsArray: [FileAction] = []) throws -> Process {
   let argv = arguments.map { $0.withCString(strdup) }
   defer { for arg in argv { free(arg) } }
   
@@ -68,20 +68,20 @@ public func spawn(_ arguments: [String], environment: [String: String] = [:], fi
 
 
 extension Process {
-  public struct Status {
+  struct Status {
     private let status: Int32
     
-    public init(status: Int32) {
+    init(status: Int32) {
       self.status = status
     }
     // WEXITSTATUS
-    public var exitstatus: Int {
+    var exitstatus: Int {
       return Int((status >> 8) & 0xff)
     }
   }
 }
 
-public func waitpid(pid: pid_t) throws -> Process.Status {
+func waitpid(pid: pid_t) throws -> Process.Status {
   return try retryInterrupt {
     var status: Int32 = 0
     let rv = waitpid(pid, &status, 0)
@@ -95,44 +95,7 @@ public func waitpid(pid: pid_t) throws -> Process.Status {
 
 
 extension Process {
-  public func wait() throws -> Status {
+  func wait() throws -> Status {
     return try waitpid(pid: pid)
   }
-}
-
-
-
-func Run() {
-//  let (rd, wr) = try! pipe()
-//  let (red, wer) = try! pipe()
-//  
-//  
-//  let process = try! spawn(["/bin/sh", "-c", "echo 1 2 3"], environment: ["FOO": "1"], fileActions: [
-//    .Dup2(wr.fd, 1),
-//    .Dup2(wer.fd, 2),
-//    .Close(rd.fd),
-//    .Close(red.fd),
-//    ])
-
-  let (stdOut, outW) = try! pipe()
-  let (stdErr, errW) = try! pipe()
-  
-  
-  let process = try! spawn(["/bin/sh", "-c", "echo 123"], environment: ["FOO": "1"], fileActions: [
-    .Dup2(outW.fd, 1),
-    .Dup2(errW.fd, 2),
-    .Close(stdOut.fd),
-    .Close(stdErr.fd),
-    ])
-  
-  try! outW.close()
-  try! errW.close()
-  
-  let status = try! process.wait()
- 
-  let s: String = try! stdOut.read()
-  print(s)
-  
-  let err: String = try! stdErr.read()
-  print(err)
 }
