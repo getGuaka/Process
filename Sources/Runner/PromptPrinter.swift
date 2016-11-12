@@ -11,6 +11,12 @@ protocol PromptPrinter {
     func printString(_ string: String, terminator: String)
 }
 
+class ConsolePromptPrinter: PromptPrinter {
+  
+  func printString(_ string: String, terminator: String = "\n") {
+    return print(string, separator: "", terminator: terminator)
+  }
+}
 
 class DummyPromptPrinter: PromptPrinter {
     
