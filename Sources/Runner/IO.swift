@@ -19,19 +19,6 @@ struct IO: TaskIO {
   let fd: FileDescriptor
 }
 
-
-// MARK: - Opening
-extension IO {
-  static func open(path: String) throws -> IO {
-    let fd = Darwin.open(path, O_RDONLY, S_IREAD)
-    if fd == -1 {
-      throw SystemError.read(errno)
-    }
-    return IO(fd: fd)
-  }
-}
-
-
 // MARK: - Reading
 extension IO {
   func read() throws -> String {
@@ -46,21 +33,6 @@ extension IO {
     return try _read(fd: fd)
   }
   
-  static func read(fds: Set<FileDescriptor>) throws -> [FileDescriptor : [UInt8]] {
-    return try _read(fds: fds)
-  }
-}
-
-
-// MARK: - Writing
-extension IO: TextOutputStream {
-  func write(_ string: String) {
-    _write(fd: fd, string: string)
-  }
-  
-  func write(data: [UInt8]) {
-    _write(fd: fd, data: data)
-  }
 }
 
 
@@ -118,43 +90,6 @@ private func _readToString(fd: FileDescriptor) throws -> String {
   
   let str = String.init(cString: data.map({ UInt8($0)}))
   return str
-}
-
-private func _read(fds: Set<FileDescriptor>) throws -> [FileDescriptor : [UInt8]] {
-  var openFds: Set<FileDescriptor> = fds
-  var bufs: [FileDescriptor : [UInt8]] = [:]
-  
-  for fd in fds {
-    bufs[fd] = [UInt8]()
-  }
-  
-  while openFds.count > 0 {
-    let (readyReadFds, _, _) = try select(readFds: openFds, timeout: 1)
-    for fd in readyReadFds {
-      // TODO: Avoid force unwrapping
-      var buf = bufs[fd]!
-      if let chunk = try _read(fd: fd, length: 4096) {
-        buf.append(contentsOf: chunk)
-      } else {
-        try _close(fd: fd)
-        openFds.remove(fd)
-      }
-    }
-  }
-  
-  var result: [FileDescriptor : [UInt8]] = [:]
-  for fd in fds {
-    result[fd] = bufs[fd]
-  }
-  return result
-}
-
-private func _write(fd: FileDescriptor, data: [UInt8]) {
-  write(fd, data, data.count)
-}
-
-private func _write(fd: FileDescriptor, string: String) {
-  write(fd, string, Int(strlen(string)))
 }
 
 private func _close(fd: FileDescriptor) throws {

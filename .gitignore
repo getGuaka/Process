@@ -191,7 +191,7 @@ tags
 
 iOSInjectionProject/
 
-RUN.xcodeproj
+Runner.xcodeproj
 Packages/
 
 ### Objective-C Patch ###

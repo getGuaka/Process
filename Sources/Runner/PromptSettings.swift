@@ -9,12 +9,7 @@
 
 class PromptSettings {
     
-    static var reader: PromptReader = ConsolePromptReader()
     static var printer: PromptPrinter = ConsolePromptPrinter()
-    
-    class func read() -> String? {
-        return reader.read()
-    }
     
     class func print(_ string: String, terminator: String = "\n") {
         return printer.printString(string, terminator: terminator)

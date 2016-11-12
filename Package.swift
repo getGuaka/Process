@@ -1,10 +1,9 @@
 import PackageDescription
 
 let package = Package(
-    name: "Run",
+    name: "Runner",
     targets: [
       Target(name: "Environ"),
-      Target(name: "Run", dependencies: ["Environ"]),
-      Target(name: "App", dependencies: ["Run"]),
+      Target(name: "Runner", dependencies: ["Environ"]),
   ]
 )

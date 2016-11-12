@@ -1,5 +1,5 @@
 import XCTest
-@testable import Run
+@testable import Runner
 
 
 class RunnerTests: XCTestCase {

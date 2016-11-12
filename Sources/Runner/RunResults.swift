@@ -22,18 +22,6 @@ public struct RunResults {
   public let stderr: String
 }
 
-// MARK:- Internal
-
-func splitCommandToArgs(_ command: String) -> [String] {
-  
-  if command.characters.contains(" ") {
-    // TODO: FIX
-    return [""] //command.components(separatedBy: " ")
-  }
-  
-  return [command]
-}
-
 func read(pipe: TaskIO) -> String {
   let s: String = (try? pipe.read()) ?? ""
   return s
