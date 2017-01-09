@@ -1,9 +1,9 @@
-# Runner
+# Process
 
-[![Build Status](https://travis-ci.org/oarrabi/Runner.svg?branch=master)](https://travis-ci.org/oarrabi/Runner)
-[![codecov](https://codecov.io/gh/oarrabi/Runner/branch/master/graph/badge.svg)](https://codecov.io/gh/oarrabi/Runner)
-[![Platform](https://img.shields.io/badge/platform-osx-lightgrey.svg)](https://travis-ci.org/oarrabi/Runner)
-[![Language: Swift](https://img.shields.io/badge/language-swift-orange.svg)](https://travis-ci.org/oarrabi/Runner)
+[![Build Status](https://travis-ci.org/oarrabi/Process.svg?branch=master)](https://travis-ci.org/oarrabi/Process)
+[![codecov](https://codecov.io/gh/oarrabi/Process/branch/master/graph/badge.svg)](https://codecov.io/gh/oarrabi/Process)
+[![Platform](https://img.shields.io/badge/platform-osx-lightgrey.svg)](https://travis-ci.org/oarrabi/Process)
+[![Language: Swift](https://img.shields.io/badge/language-swift-orange.svg)](https://travis-ci.org/oarrabi/Process)
 [![Carthage](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
 
 
@@ -11,7 +11,7 @@ A posix-compliant library to run external applications and capture the standard 
 
 ## Why?
 
-If you are developing cross platform command line apps, you need an easy way to run external applications. `Runner` provides just that.
+If you are developing cross platform command line apps, you need an easy way to run external applications. `Process` provides just that.
 
 You can use `Process` with [Guaka](https://github.com/oarrabi/Process) to create aweseome command line applications.
 
@@ -49,26 +49,26 @@ let result = Process.exec("ls -all") { settings in
     - `EchoSettings.Command`: The command executed will be printed to the terminal
 
 ## Installation
-You can install Runner using Swift package manager (SPM) and carthage
+You can install Process using Swift package manager (SPM) and carthage
 
 ### Swift Package Manager
-Add Runner as dependency in your `Package.swift`
+Add Process as dependency in your `Package.swift`
 
 ```
   import PackageDescription
 
   let package = Package(name: "YourPackage",
     dependencies: [
-      .Package(url: "https://github.com/oarrabi/Runner.git", majorVersion: 0),
+      .Package(url: "https://github.com/oarrabi/Process.git", majorVersion: 0),
     ]
   )
 ```
 
 ### Carthage
-    github 'oarrabi/Runner'
+    github 'oarrabi/Process'
 
 ## Tests
-Tests can be found [here](https://github.com/oarrabi/Runner/tree/master/Tests).
+Tests can be found [here](https://github.com/oarrabi/Process/tree/master/Tests).
 
 Run them with
 ```
