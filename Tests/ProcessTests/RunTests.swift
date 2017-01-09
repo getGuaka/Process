@@ -1,9 +1,9 @@
 import XCTest
-@testable import Runner
+@testable import Process
 
 class RunTests: XCTestCase {
   func testExample() {
-    let x = 🏃.run("rbenv")
+    let x = Process.exec("rbenv")
     print(x)
   }
   

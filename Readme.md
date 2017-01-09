@@ -13,14 +13,17 @@ A posix-compliant library to run external applications and capture the standard 
 
 If you are developing cross platform command line apps, you need an easy way to run external applications. `Runner` provides just that.
 
+You can use `Process` with [Guaka](https://github.com/oarrabi/Process) to create aweseome command line applications.
+
 ## Usage
 
 To execute a simple command you would do:
 
 ```swift
-    let result = run("ls -a -l")
-    print(result.stdout)
+let result = Process.exec("ls -a -l")
+print(result.stdout)
 ```
+
 `result` type is `RunResults`, it contains:
 
 - `exitStatus`: The command exit status
@@ -30,11 +33,11 @@ To execute a simple command you would do:
 To customize the run function, you can pass in a customization block:
 
 ```swift
-    let result = run("ls -all") { settings in
-        settings.dryRun = true
-        settings.echo = [.Stdout, .Stderr, .Command]
-        settings.interactive = false
-    }
+let result = Process.exec("ls -all") { settings in
+    settings.dryRun = true
+    settings.echo = [.Stdout, .Stderr, .Command]
+    settings.interactive = false
+}
 ```
 
 `settings` is an instance of RunSettings, which contains the following variables:

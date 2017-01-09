@@ -29,11 +29,11 @@ enum FileAction {
   case Dup2(FileDescriptor, FileDescriptor)
 }
 
-struct Process {
+struct RunProcess {
   let pid: pid_t
 }
 
-func spawn(_ arguments: [String], environment: [String] = [], fileActions fileActionsArray: [FileAction] = []) throws -> Process {
+func spawn(_ arguments: [String], environment: [String] = [], fileActions fileActionsArray: [FileAction] = []) throws -> RunProcess {
   let argv = arguments.map { $0.withCString(strdup) }
   defer { for arg in argv { free(arg) } }
   
@@ -63,11 +63,11 @@ func spawn(_ arguments: [String], environment: [String] = [], fileActions fileAc
         throw SystemError.posix_spawn(rv)
   }
   
-  return Process(pid: pid)
+  return RunProcess(pid: pid)
 }
 
 
-extension Process {
+extension RunProcess {
   struct Status {
     private let status: Int32
     
@@ -81,12 +81,12 @@ extension Process {
   }
 }
 
-func waitpid(pid: pid_t) throws -> Process.Status {
+func waitpid(pid: pid_t) throws -> RunProcess.Status {
   return try retryInterrupt {
     var status: Int32 = 0
     let rv = waitpid(pid, &status, 0)
     if rv != -1 {
-      return Process.Status(status: status)
+      return RunProcess.Status(status: status)
     } else {
       throw SystemError.waitpid(errno)
     }
@@ -94,7 +94,7 @@ func waitpid(pid: pid_t) throws -> Process.Status {
 }
 
 
-extension Process {
+extension RunProcess {
   func wait() throws -> Status {
     return try waitpid(pid: pid)
   }

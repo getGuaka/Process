@@ -1,38 +1,68 @@
 //
 //  Runner.swift
-//  🏃
+//  Process
 //
-//  Created by Omar Abdelhafith on 02/11/2015.
+//  Created by Omar Abdelhafith on 02/11/2016.
 //  Copyright © 2015 Omar Abdelhafith. All rights reserved.
 //
 
 
-enum 🏃{
-  
-  static func runWithoutCapture(_ command: String) -> Int {
-    let initalSettings = RunSettings()
-    return run(command, settings: initalSettings).exitStatus
-  }
-  
-  static func run(_ command: String) -> RunResults {
+enum Process {
+
+  /**
+   Executes a command and captures its output
+
+   - parameter command: the command to execute
+
+   - returns: RunResults describing the command results
+   */
+  public static func exec(_ command: String) -> RunResults {
     let settings = RunSettings()
-    return run(command, settings: settings)
+    return exec(command, settings: settings)
   }
-  
-  static func run(_ command: String, settings: ((RunSettings) -> Void)) -> RunResults {
+
+  /**
+   Executes a command and captures its output
+
+   - parameter command: the command to execute
+   - parameter settingsBlock: block that receives the settings to costumize the behavior of run
+
+   - returns: RunResults describing the command results
+   */
+  public static func exec(_ command: String, settingsBlock: ((RunSettings) -> Void)) -> RunResults {
     let initalSettings = RunSettings()
-    settings(initalSettings)
+    settingsBlock(initalSettings)
     
-    return run(command, settings: initalSettings)
+    return exec(command, settings: initalSettings)
   }
-  
-  static func run(_ command: String, echo: EchoSettings) -> RunResults {
+
+  /**
+   Executes a command and captures its output
+
+   - parameter command: the command to execute
+   - parameter echo:    echo settings that describe what parts of the command to print
+
+   - returns: RunResults describing the command results
+   */
+  public static func exec(_ command: String, echo: EchoSettings) -> RunResults {
     let initalSettings = RunSettings()
     initalSettings.echo = echo
-    return run(command, settings: initalSettings)
+    return exec(command, settings: initalSettings)
   }
-  
-  static func run(_ command: String, settings: RunSettings) -> RunResults {
+
+  /**
+   Execute a command in interactive mode, output won't be captured
+
+   - parameter command: the command to execute
+
+   - returns: executed command exit code
+   */
+  public static func runWithoutCapture(_ command: String) -> Int {
+    let initalSettings = RunSettings()
+    return exec(command, settings: initalSettings).exitStatus
+  }
+
+  public static func exec(_ command: String, settings: RunSettings) -> RunResults {
         
     let result: RunResults
     
@@ -48,7 +78,7 @@ enum 🏃{
     
     return result
   }
-  
+
   fileprivate static func executeDryCommand(_ command: String) -> RunResults {
     return execute(command, withExecutor: DryTaskExecutor())
   }

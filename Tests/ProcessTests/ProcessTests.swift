@@ -1,8 +1,8 @@
 import XCTest
-@testable import Runner
+@testable import Process
 
 
-class RunnerTests: XCTestCase {
+class ProcessTests: XCTestCase {
   
   var promptPrinter: DummyPromptPrinter!
   
@@ -17,7 +17,7 @@ class RunnerTests: XCTestCase {
     
     dummyExecutor = DummyTaskExecutor(status: 0, output: "123", error: "")
     CommandExecutor.currentTaskExecutor = dummyExecutor
-    let res = 🏃.run("ls -all")
+    let res = Process.exec("ls -all")
     
     XCTAssertEqual(res.exitStatus, 0)
     XCTAssertEqual(res.stdout, "123")
@@ -31,7 +31,7 @@ class RunnerTests: XCTestCase {
     
     dummyExecutor = DummyTaskExecutor(status: 1, output: "", error: "123")
     CommandExecutor.currentTaskExecutor = dummyExecutor
-    let res = 🏃.run("test test test")
+    let res = Process.exec("test test test")
     
     XCTAssertEqual(res.exitStatus, 1)
     XCTAssertEqual(res.stdout, "")
@@ -44,7 +44,7 @@ class RunnerTests: XCTestCase {
     let dummyExecutor = DummyTaskExecutor(status: 1, output: "Command output was", error: "error out")
     CommandExecutor.currentTaskExecutor = dummyExecutor
     
-    _ = 🏃.run("ls -all") { s in
+    _ = Process.exec("ls -all") { s in
       s.echo = [.Stdout, .Stderr]
     }
     
@@ -63,7 +63,7 @@ class RunnerTests: XCTestCase {
     let dummyExecutor = DummyTaskExecutor(status: 1, output: "", error: "error out")
     CommandExecutor.currentTaskExecutor = dummyExecutor
     
-    _ = 🏃.run("ls -all") { s in
+    _ = Process.exec("ls -all") { s in
       s.echo = [.Stdout, .Stderr]
     }
     
@@ -79,7 +79,7 @@ class RunnerTests: XCTestCase {
     let dummyExecutor = DummyTaskExecutor(status: 1, output: "", error: "error out")
     CommandExecutor.currentTaskExecutor = dummyExecutor
     
-    _ = 🏃.run("ls -all") { s in
+    _ = Process.exec("ls -all") { s in
       s.echo = .Command
     }
     
@@ -95,7 +95,7 @@ class RunnerTests: XCTestCase {
     let dummyExecutor = DummyTaskExecutor(status: 1, output: "Command output was 2", error: "error out 2")
     CommandExecutor.currentTaskExecutor = dummyExecutor
     
-    _ = 🏃.run("ls") {
+    _ = Process.exec("ls") {
       $0.echo = .Stdout
     }
     
@@ -109,7 +109,7 @@ class RunnerTests: XCTestCase {
     let dummyExecutor = DummyTaskExecutor(status: 1, output: "Command output was 2", error: "error out 2")
     CommandExecutor.currentTaskExecutor = dummyExecutor
     
-    _ = 🏃.run("ls") {
+    _ = Process.exec("ls") {
       $0.echo = .Stderr
     }
     
@@ -123,7 +123,7 @@ class RunnerTests: XCTestCase {
       let dummyExecutor = DummyTaskExecutor(status: 1, output: "Command output was 2", error: "error out 2")
       CommandExecutor.currentTaskExecutor = dummyExecutor
       
-      _ = 🏃.run("ls") {
+      _ = Process.exec("ls") {
         $0.echo = .None
       }
       
@@ -134,7 +134,7 @@ class RunnerTests: XCTestCase {
       let dummyExecutor = DummyTaskExecutor(status: 1, output: "Command output was 2", error: "error out 2")
       CommandExecutor.currentTaskExecutor = dummyExecutor
       
-      _ = 🏃.run("ls -all", echo: [.Command])
+      _ = Process.exec("ls -all", echo: [.Command])
       
       XCTAssertEqual(dummyExecutor.commandsExecuted, ["ls -all"])
       
@@ -146,7 +146,7 @@ class RunnerTests: XCTestCase {
         
     func testItExecuteLS() {
       CommandExecutor.currentTaskExecutor = ActualTaskExecutor()
-      let res = 🏃.run("ls -all")
+      let res = Process.exec("ls -all")
       
       XCTAssertEqual(res.exitStatus, 0)
       XCTAssertNotEqual(res.stdout, "")
@@ -154,8 +154,9 @@ class RunnerTests: XCTestCase {
     }
     
     func testItDryExecutesLS() {
+      
       CommandExecutor.currentTaskExecutor = ActualTaskExecutor()
-      let res = 🏃.run("ls -all") {
+      let res = Process.exec("ls -all") {
         $0.dryRun = true
       }
       
@@ -165,12 +166,4 @@ class RunnerTests: XCTestCase {
       XCTAssertEqual(promptPrinter.printed, "Executed command 'ls -all'\n")
     }
     
-  //  func testItCanDoInteractiveExecutions() {
-  //    CommandExecutor.currentTaskExecutor = InteractiveTaskExecutor()
-  //    let res = 🏃.runWithoutCapture("ls")
-  //    
-  //    // Make it pass for now
-  //    // FIXME: figure out why this does not work
-  //    expect(res).to(equal(2))
-  //  }
 }

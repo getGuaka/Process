@@ -1,9 +1,9 @@
 import PackageDescription
 
 let package = Package(
-    name: "Runner",
+    name: "Process",
     targets: [
-      Target(name: "RunnerEnviron"),
-      Target(name: "Runner", dependencies: ["RunnerEnviron"]),
+      Target(name: "ProcessEnviron"),
+      Target(name: "Process", dependencies: ["ProcessEnviron"]),
   ]
 )
