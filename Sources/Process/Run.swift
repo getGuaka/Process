@@ -40,8 +40,13 @@ func spawn(_ arguments: [String], environment: [String] = [], fileActions fileAc
   var environment = environment
   let env = environment.map { $0.withCString(strdup) }
   defer { env.forEach { free($0) } }
-  
-  var fileActions = UnsafeMutablePointer<posix_spawn_file_actions_t?>.allocate(capacity: fileActionsArray.count)
+
+  #if os(Linux)
+    var fileActions = UnsafeMutablePointer<posix_spawn_file_actions_t>.allocate(capacity: fileActionsArray.count)
+  #else
+    var fileActions = UnsafeMutablePointer<posix_spawn_file_actions_t?>.allocate(capacity: fileActionsArray.count)
+  #endif
+
   posix_spawn_file_actions_init(fileActions)
   defer { posix_spawn_file_actions_destroy(fileActions) }
   

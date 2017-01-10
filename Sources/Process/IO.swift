@@ -63,7 +63,13 @@ func retryInterrupt<T>( block: @autoclosure () throws -> T) throws -> T {
 private func _read(fd: FileDescriptor, length: Int) throws -> [UInt8]? {
   var buf = [UInt8](repeating: 0, count: length)
   return try retryInterrupt {
-    let n = Darwin.read(fd, &buf, length)
+
+    #if os(Linux)
+      let n = Glibc.read(fd, &buf, length)
+    #else
+      let n = Darwin.read(fd, &buf, length)
+    #endif
+
     switch n {
     case -1:
       throw SystemError.read(errno)
