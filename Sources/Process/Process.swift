@@ -7,7 +7,7 @@
 //
 
 
-enum Process {
+public enum Process {
 
   /**
    Executes a command and captures its output
