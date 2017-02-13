@@ -94,7 +94,7 @@ private func _readToString(fd: FileDescriptor) throws -> String {
   let data = try _read(fd: fd)
   if data.count == 0 { return "" }
   
-  let str = String.init(cString: data.map({ UInt8($0)}))
+  let str = String.init(cString: data.map({ UInt8($0)}) + [0])
   return str
 }
 
